@@ -1727,6 +1727,10 @@ export const collectionsSlice = createSlice({
               item.draft.request.body.ws = action.payload.content;
               break;
             }
+            case 'socketio': {
+              item.draft.request.body.socketio = action.payload.content;
+              break;
+            }
           }
         }
       }
