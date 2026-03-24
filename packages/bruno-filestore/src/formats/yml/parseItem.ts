@@ -84,6 +84,9 @@ const parseItem = (ymlString: string): BrunoItem => {
       case 'websocket':
         return parseWebsocketRequest(ocItem as WebSocketRequest);
 
+      case 'socketio':
+        return parseWebsocketRequest(ocItem as WebSocketRequest);
+
       case 'script':
         return parseScript(ocItem as ScriptFile);
 

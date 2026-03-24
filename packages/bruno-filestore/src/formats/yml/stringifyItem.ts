@@ -20,6 +20,9 @@ const stringifyItem = (item: BrunoItem): string => {
       case 'ws-request':
         return stringifyWebsocketRequest(item);
 
+      case 'socketio-request':
+        return stringifyWebsocketRequest(item);
+
       case 'js':
         return stringifyScript(item);
 
