@@ -3473,6 +3473,57 @@ export const collectionsSlice = createSlice({
 
       item.response = updatedResponse;
     },
+    runSioRequestEvent: (state, action) => {
+      const { itemUid, collectionUid, eventType, eventData } = action.payload;
+      const collection = findCollectionByUid(state.collections, collectionUid);
+      if (!collection) return;
+
+      const item = findItemInCollection(collection, itemUid);
+      if (!item) return;
+
+      if (!item.sioResponse) {
+        item.sioResponse = { messages: [], connectionStatus: 'disconnected' };
+      }
+
+      switch (eventType) {
+        case 'connecting':
+          item.sioResponse.connectionStatus = 'connecting';
+          break;
+        case 'connected':
+          item.sioResponse.connectionStatus = 'connected';
+          break;
+        case 'disconnected':
+          item.sioResponse.connectionStatus = 'disconnected';
+          break;
+        case 'error':
+          item.sioResponse.messages.push({
+            type: 'error',
+            eventName: 'error',
+            data: eventData?.message || eventData?.error || 'Socket.IO error occurred',
+            timestamp: Date.now()
+          });
+          break;
+      }
+    },
+    sioResponseReceived: (state, action) => {
+      const { itemUid, collectionUid, eventType, eventData } = action.payload;
+      const collection = findCollectionByUid(state.collections, collectionUid);
+      if (!collection) return;
+
+      const item = findItemInCollection(collection, itemUid);
+      if (!item) return;
+
+      if (!item.sioResponse) {
+        item.sioResponse = { messages: [], connectionStatus: 'disconnected' };
+      }
+
+      item.sioResponse.messages.push({
+        type: eventType,
+        eventName: eventData?.eventName || eventType,
+        data: eventData?.data !== undefined ? eventData.data : eventData,
+        timestamp: eventData?.timestamp || Date.now()
+      });
+    },
     wsUpdateResponseSortOrder: (state, action) => {
       const collection = findCollectionByUid(state.collections, action.payload.collectionUid);
 
@@ -3699,6 +3750,8 @@ export const {
   runWsRequestEvent,
   wsResponseReceived,
   wsUpdateResponseSortOrder,
+  runSioRequestEvent,
+  sioResponseReceived,
 
   /* Response Example Actions - Start */
   addResponseExample,
