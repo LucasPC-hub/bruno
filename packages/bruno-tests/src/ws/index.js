@@ -55,9 +55,7 @@ const wsRouter = (request, socket, head) => {
   socket.on('error', onSocketError);
 
   if (!request.url.startsWith('/ws')) {
-    socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
-    socket.destroy();
-
+    // Don't reject — let other handlers (e.g. Socket.IO) handle non-/ws paths
     socket.removeListener('error', onSocketError);
     return;
   }
