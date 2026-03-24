@@ -320,16 +320,6 @@ const registerSioEventHandlers = (window) => {
           timestamp: Date.now()
         };
 
-        if (!connectOnly) {
-          const sioBody = preparedRequest.body?.sio ?? [];
-          const hasEvents = sioBody.some((evt) => evt.content && evt.content.length);
-          if (hasEvents) {
-            sioBody.forEach((evt) => {
-              sioClient.queueEvent(preparedRequest.uid, collection.uid, evt.eventName, evt.content);
-            });
-          }
-        }
-
         // Get certificates and proxy configuration
         const certsAndProxyConfig = await getCertsAndProxyConfig({
           collectionUid: collection.uid,
@@ -353,14 +343,26 @@ const registerSioEventHandlers = (window) => {
           passphrase: httpsAgentRequestFields.passphrase
         };
 
-        // Start Socket.IO connection
-        await sioClient.startConnection({
-          request: preparedRequest,
-          collection,
-          options: {
-            timeout: settings.timeout,
-            sslOptions
+        const sioBody = preparedRequest.body?.socketio ?? [];
+        const namespace = preparedRequest.body?.namespace || '/';
+
+        // Queue pre-connect emits before starting the connection
+        if (!connectOnly) {
+          const hasEvents = sioBody.some((evt) => evt.content && evt.content.length);
+          if (hasEvents) {
+            sioBody.forEach((evt) => {
+              sioClient.emitEvent(preparedRequest.uid, evt.eventName || evt.name, evt.content);
+            });
           }
+        }
+
+        // Start Socket.IO connection
+        await sioClient.startConnection(preparedRequest.uid, collection.uid, {
+          url: preparedRequest.url,
+          namespace,
+          auth: preparedRequest.auth,
+          headers: preparedRequest.headers,
+          sslOptions
         });
 
         sendEvent('main:sio:request', preparedRequest.uid, collection.uid, requestSent);
@@ -392,9 +394,9 @@ const registerSioEventHandlers = (window) => {
   );
 
   // Emit an event on an existing Socket.IO connection
-  ipcMain.handle('renderer:sio:emit-event', (event, requestId, collectionUid, eventName, data) => {
+  ipcMain.handle('renderer:sio:emit-event', (event, requestId, eventName, data) => {
     try {
-      sioClient.emitEvent(requestId, collectionUid, eventName, data);
+      sioClient.emitEvent(requestId, eventName, data);
       return { success: true };
     } catch (error) {
       console.error('Error emitting Socket.IO event:', error);

@@ -970,6 +970,23 @@ export const collectionsSlice = createSlice({
         }
       }
     },
+    socketioNamespaceChanged: (state, action) => {
+      const collection = findCollectionByUid(state.collections, action.payload.collectionUid);
+
+      if (collection) {
+        const item = findItemInCollection(collection, action.payload.itemUid);
+
+        if (item && isItemARequest(item)) {
+          if (!item.draft) {
+            item.draft = cloneDeep(item);
+          }
+          if (!item.draft.request.socketio) {
+            item.draft.request.socketio = {};
+          }
+          item.draft.request.socketio.namespace = action.payload.namespace;
+        }
+      }
+    },
     updateItemSettings: (state, action) => {
       const collection = findCollectionByUid(state.collections, action.payload.collectionUid);
 
@@ -3649,6 +3666,7 @@ export const {
   toggleCollection,
   toggleCollectionItem,
   requestUrlChanged,
+  socketioNamespaceChanged,
   updateItemSettings,
   updateAuth,
   addQueryParam,

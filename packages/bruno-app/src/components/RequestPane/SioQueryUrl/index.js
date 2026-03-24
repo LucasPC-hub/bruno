@@ -1,7 +1,7 @@
 import { IconArrowRight, IconDeviceFloppy, IconPlugConnected, IconPlugConnectedX } from '@tabler/icons';
 import classnames from 'classnames';
 import SingleLineEditor from 'components/SingleLineEditor/index';
-import { requestUrlChanged } from 'providers/ReduxStore/slices/collections';
+import { requestUrlChanged, socketioNamespaceChanged } from 'providers/ReduxStore/slices/collections';
 import { saveRequest } from 'providers/ReduxStore/slices/collections/actions';
 import { useTheme } from 'providers/Theme';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
@@ -35,8 +35,8 @@ const SioQueryUrl = ({ item, collection, handleRun }) => {
   const connectionStatus = useSioConnectionStatus(item);
   const url = item.draft ? get(item, 'draft.request.url', '') : get(item, 'request.url', '');
   const namespace = item.draft
-    ? get(item, 'draft.request.body.namespace', '')
-    : get(item, 'request.body.namespace', '');
+    ? get(item, 'draft.request.socketio.namespace', '')
+    : get(item, 'request.socketio.namespace', '');
 
   const [namespaceValue, setNamespaceValue] = useState(namespace || '');
 
@@ -215,7 +215,15 @@ const SioQueryUrl = ({ item, collection, handleRun }) => {
           className="namespace-input"
           placeholder="/"
           value={namespaceValue}
-          onChange={(e) => setNamespaceValue(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setNamespaceValue(val);
+            dispatch(socketioNamespaceChanged({
+              itemUid: item.uid,
+              collectionUid: collection.uid,
+              namespace: val
+            }));
+          }}
         />
       </div>
 

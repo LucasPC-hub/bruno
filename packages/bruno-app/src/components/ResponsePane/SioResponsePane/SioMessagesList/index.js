@@ -72,8 +72,8 @@ const SioMessageItem = memo(({ message, isOpen, onToggle }) => {
   const isOutgoing = message.type === 'outgoing';
 
   // Socket.IO messages have an event name and payload
-  const eventName = message.event || null;
-  const payload = message.payload !== undefined ? message.payload : message.message;
+  const eventName = message.eventName || message.event || null;
+  const payload = message.data !== undefined ? message.data : (message.payload !== undefined ? message.payload : message.message);
   let parsedContent = parseContent(payload);
   const dataType = getDataTypeText(parsedContent.type);
 

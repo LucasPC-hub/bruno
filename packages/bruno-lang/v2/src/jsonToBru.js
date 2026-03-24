@@ -648,7 +648,8 @@ ${indentString(body.sparql)}
   if (body && body.socketio && body.socketio.length) {
     for (const event of body.socketio) {
       bru += `body:socketio {\n`;
-      if (event.event) bru += `  event: ${event.event}\n`;
+      const eventName = event.name || event.eventName || event.event || '';
+      if (eventName) bru += `  event: ${eventName}\n`;
       if (event.type) bru += `  type: ${event.type}\n`;
       if (event.content) bru += `  content: '''\n  ${event.content}\n  '''\n`;
       bru += `}\n\n`;

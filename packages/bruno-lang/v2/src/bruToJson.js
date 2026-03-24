@@ -1094,7 +1094,7 @@ const sem = grammar.createSemantics().addAttribute('ast', {
       body: {
         socketio: [
           {
-            event: messageEvent,
+            name: messageEvent,
             type: messageType,
             content: messageContent
           }
