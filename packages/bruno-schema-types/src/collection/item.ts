@@ -9,7 +9,8 @@ export type ItemType
     | 'folder'
     | 'js'
     | 'grpc-request'
-    | 'ws-request';
+    | 'ws-request'
+    | 'socketio-request';
 
 export interface HttpItemSettings {
   encodeUrl?: boolean | null;

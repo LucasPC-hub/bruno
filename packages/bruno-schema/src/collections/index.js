@@ -461,6 +461,8 @@ const grpcRequestSchema = Yup.object({
   .noUnknown(true)
   .strict();
 
+const socketioRequestSchema = require('./socketioRequestSchema');
+
 const wsRequestSchema = Yup.object({
   url: requestUrlSchema,
   headers: Yup.array().of(keyValueSchema).required('headers are required'),
@@ -547,7 +549,7 @@ const folderRootSchema = Yup.object({
 
 const itemSchema = Yup.object({
   uid: uidSchema,
-  type: Yup.string().oneOf(['http-request', 'graphql-request', 'folder', 'js', 'grpc-request', 'ws-request']).required('type is required'),
+  type: Yup.string().oneOf(['http-request', 'graphql-request', 'folder', 'js', 'grpc-request', 'ws-request', 'socketio-request']).required('type is required'),
   seq: Yup.number().min(1),
   name: Yup.string().min(1, 'name must be at least 1 character').required('name is required'),
   tags: Yup.array().of(Yup.string().matches(/^[\p{L}\p{N}_-](?:[\p{L}\p{N}_\s-]*[\p{L}\p{N}_-])?$/u, 'tag must contain only letters, numbers, spaces, hyphens, or underscores')),
@@ -557,9 +559,13 @@ const itemSchema = Yup.object({
     otherwise: Yup.mixed().when('type', {
       is: (type) => type === 'ws-request',
       then: wsRequestSchema.required('request is required when item-type is ws-request'),
-      otherwise: requestSchema.when('type', {
-        is: (type) => ['http-request', 'graphql-request'].includes(type),
-        then: (schema) => schema.required('request is required when item-type is request')
+      otherwise: Yup.mixed().when('type', {
+        is: (type) => type === 'socketio-request',
+        then: socketioRequestSchema.required('request is required when item-type is socketio-request'),
+        otherwise: requestSchema.when('type', {
+          is: (type) => ['http-request', 'graphql-request'].includes(type),
+          then: (schema) => schema.required('request is required when item-type is request')
+        })
       })
     })
   }),

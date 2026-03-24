@@ -1,6 +1,7 @@
 import type { HttpRequest } from './http';
 import type { GrpcRequest } from './grpc';
 import type { WebSocketRequest } from './websocket';
+import type { SocketIORequest } from './socketio';
 
 export type {
   HttpRequest,
@@ -23,4 +24,10 @@ export type {
   WebSocketMessage
 } from './websocket';
 
-export type Request = HttpRequest | GrpcRequest | WebSocketRequest;
+export type {
+  SocketIORequest,
+  SocketIORequestBody,
+  SocketIOEvent
+} from './socketio';
+
+export type Request = HttpRequest | GrpcRequest | WebSocketRequest | SocketIORequest;
