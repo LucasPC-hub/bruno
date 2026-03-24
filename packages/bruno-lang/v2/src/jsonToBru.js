@@ -14,7 +14,7 @@ const stripLastLine = (text) => {
 };
 
 const jsonToBru = (json) => {
-  const { meta, http, grpc, ws, params, headers, metadata, auth, body, script, tests, vars, assertions, settings, docs, examples } = json;
+  const { meta, http, grpc, ws, socketio, params, headers, metadata, auth, body, script, tests, vars, assertions, settings, docs, examples } = json;
 
   let bru = '';
 
@@ -117,6 +117,21 @@ const jsonToBru = (json) => {
 }
 
 `;
+  }
+
+  if (socketio && socketio.url) {
+    bru += `socketio {
+  url: ${socketio.url}`;
+
+    if (socketio.namespace && socketio.namespace.length) {
+      bru += `\n  namespace: ${socketio.namespace}`;
+    }
+
+    if (socketio.auth && socketio.auth.length) {
+      bru += `\n  auth: ${socketio.auth}`;
+    }
+
+    bru += `\n}\n\n`;
   }
 
   if (params && params.length) {
@@ -627,6 +642,16 @@ ${indentString(body.sparql)}
         bru += `${indentString(`content: '''\n${indentString(contentValue)}\n'''`)}\n`;
         bru += '}\n\n';
       });
+    }
+  }
+
+  if (body && body.socketio && body.socketio.length) {
+    for (const event of body.socketio) {
+      bru += `body:socketio {\n`;
+      if (event.event) bru += `  event: ${event.event}\n`;
+      if (event.type) bru += `  type: ${event.type}\n`;
+      if (event.content) bru += `  content: '''\n  ${event.content}\n  '''\n`;
+      bru += `}\n\n`;
     }
   }
 

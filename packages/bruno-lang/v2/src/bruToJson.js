@@ -30,9 +30,9 @@ const parseExample = require('./example/bruToJson');
  *
  */
 const grammar = ohm.grammar(`Bru {
-  BruFile = (meta | http | grpc | ws | query | params | headers | metadata | auths | bodies | varsandassert | script | tests | settings | docs | example)*
+  BruFile = (meta | http | grpc | ws | socketio | query | params | headers | metadata | auths | bodies | varsandassert | script | tests | settings | docs | example)*
   auths = authawsv4 | authbasic | authbearer | authdigest | authNTLM | authOAuth2 | authwsse | authapikey | authOauth2Configs
-  bodies = bodyjson | bodytext | bodyxml | bodysparql | bodygraphql | bodygraphqlvars | bodyforms | body | bodygrpc | bodyws
+  bodies = bodyjson | bodytext | bodyxml | bodysparql | bodygraphql | bodygraphqlvars | bodyforms | body | bodygrpc | bodyws | bodysocketio
   bodyforms = bodyformurlencoded | bodymultipart | bodyfile
   params = paramspath | paramsquery
   
@@ -92,6 +92,7 @@ const grammar = ohm.grammar(`Bru {
   http = get | post | put | delete | patch | options | head | connect | trace | httpcustom
   grpc = "grpc" dictionary
   ws = "ws" dictionary
+  socketio = "socketio" dictionary
   get = "get" dictionary
   post = "post" dictionary
   put = "put" dictionary
@@ -143,6 +144,7 @@ const grammar = ohm.grammar(`Bru {
   bodygraphqlvars = "body:graphql:vars" st* "{" nl* textblock tagend
   bodygrpc = "body:grpc" dictionary
   bodyws = "body:ws" dictionary
+  bodysocketio = "body:socketio" dictionary
 
   bodyformurlencoded = "body:form-urlencoded" dictionary
   bodymultipart = "body:multipart-form" dictionary
@@ -510,6 +512,11 @@ const sem = grammar.createSemantics().addAttribute('ast', {
   ws(_1, dictionary) {
     return {
       ws: mapPairListToKeyValPair(dictionary.ast)
+    };
+  },
+  socketio(_1, dictionary) {
+    return {
+      socketio: mapPairListToKeyValPair(dictionary.ast)
     };
   },
   get(_1, dictionary) {
@@ -1067,6 +1074,28 @@ const sem = grammar.createSemantics().addAttribute('ast', {
           {
             name: messageName,
             type: messageTypeContent,
+            content: messageContent
+          }
+        ]
+      }
+    };
+  },
+  bodysocketio(_1, dictionary) {
+    const pairs = mapPairListToKeyValPairs(dictionary.ast, false);
+    const eventPair = _.find(pairs, { name: 'event' });
+    const contentPair = _.find(pairs, { name: 'content' });
+    const typePair = _.find(pairs, { name: 'type' });
+
+    const messageEvent = eventPair ? eventPair.value : '';
+    const messageContent = contentPair ? contentPair.value : '';
+    const messageType = typePair ? typePair.value : '';
+
+    return {
+      body: {
+        socketio: [
+          {
+            event: messageEvent,
+            type: messageType,
             content: messageContent
           }
         ]
