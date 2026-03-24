@@ -9,6 +9,7 @@ const multipartRouter = require('./multipart');
 const redirectRouter = require('./redirect');
 const mixRouter = require('./mix');
 const wsRouter = require('./ws');
+const setupSocketIO = require('./sio');
 const setupGraphQL = require('./graphql');
 
 const app = new express();
@@ -69,6 +70,7 @@ app.get('/redirect-to-ping', function (req, res) {
 const server = require('http').createServer(app);
 
 server.on('upgrade', wsRouter);
+setupSocketIO(server);
 
 setupGraphQL(app).then(() => {
   server.listen(port, function () {
