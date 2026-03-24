@@ -3,6 +3,7 @@ import { fromOpenCollectionHttpItem, toOpenCollectionHttpItem } from './http';
 import { fromOpenCollectionGraphqlItem, toOpenCollectionGraphqlItem } from './graphql';
 import { fromOpenCollectionGrpcItem, toOpenCollectionGrpcItem } from './grpc';
 import { fromOpenCollectionWebsocketItem, toOpenCollectionWebsocketItem } from './websocket';
+import { fromOpenCollectionSocketioItem } from './socketio';
 import type {
   BrunoItem
 } from '../types';
@@ -17,6 +18,7 @@ interface OCItem {
   graphql?: unknown;
   grpc?: unknown;
   websocket?: unknown;
+  socketio?: unknown;
   items?: unknown[];
   script?: string;
 }
@@ -46,6 +48,10 @@ const getItemType = (item: OCItem): string => {
     return 'websocket';
   }
 
+  if ('socketio' in item && item.socketio) {
+    return 'socketio';
+  }
+
   if ('script' in item && typeof item.script === 'string') {
     return 'script';
   }
@@ -66,6 +72,8 @@ export const fromOpenCollectionItem = (item: unknown, parseFolder: (folder: unkn
       return fromOpenCollectionGrpcItem(item as Parameters<typeof fromOpenCollectionGrpcItem>[0]);
     case 'websocket':
       return fromOpenCollectionWebsocketItem(item as Parameters<typeof fromOpenCollectionWebsocketItem>[0]);
+    case 'socketio':
+      return fromOpenCollectionSocketioItem(item as Parameters<typeof fromOpenCollectionSocketioItem>[0]);
     case 'folder':
       return parseFolder(item);
     case 'script': {
@@ -123,3 +131,4 @@ export { fromOpenCollectionHttpItem, toOpenCollectionHttpItem } from './http';
 export { fromOpenCollectionGraphqlItem, toOpenCollectionGraphqlItem } from './graphql';
 export { fromOpenCollectionGrpcItem, toOpenCollectionGrpcItem } from './grpc';
 export { fromOpenCollectionWebsocketItem, toOpenCollectionWebsocketItem } from './websocket';
+export { fromOpenCollectionSocketioItem } from './socketio';

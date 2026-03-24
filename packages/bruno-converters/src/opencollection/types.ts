@@ -165,6 +165,11 @@ export type {
   WebSocketRequestBody as BrunoWebSocketRequestBody,
   WebSocketMessage as BrunoWsMessage
 } from '@usebruno/schema-types/requests/websocket';
+export type {
+  SocketIORequest as BrunoSocketIORequest,
+  SocketIORequestBody as BrunoSocketIORequestBody,
+  SocketIOEvent as BrunoSocketIOEvent
+} from '@usebruno/schema-types/requests/socketio';
 
 export interface BrunoConfig {
   version?: string;
