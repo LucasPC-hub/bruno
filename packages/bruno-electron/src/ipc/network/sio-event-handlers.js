@@ -56,7 +56,7 @@ const prepareSioRequest = async (item, collection, environment, runtimeVariables
     }
   });
 
-  const envVars = getEnvVars(environment);
+  const envVars = getEnvVars(environment || {});
   const processEnvVars = getProcessEnvVars(collection.uid);
   const { promptVariables = {} } = collection;
 

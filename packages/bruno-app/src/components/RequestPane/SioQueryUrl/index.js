@@ -6,8 +6,9 @@ import { saveRequest } from 'providers/ReduxStore/slices/collections/actions';
 import { useTheme } from 'providers/Theme';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { isMacOS } from 'utils/common/platform';
+import { findEnvironmentInCollection } from 'utils/collections';
 import { hasRequestChanges } from 'utils/collections';
 import { getAllVariables } from 'utils/collections';
 import { interpolateUrl } from 'utils/url';
@@ -59,14 +60,16 @@ const SioQueryUrl = ({ item, collection, handleRun }) => {
       return;
     }
 
-    const { globalEnvironments, activeGlobalEnvironmentUid } = window.__brunoStore?.getState?.()?.globalEnvironments ?? {};
+    const activeEnvironmentUid = collection.activeEnvironmentUid;
+    const environment = activeEnvironmentUid ? findEnvironmentInCollection(collection, activeEnvironmentUid) : {};
+    const runtimeVariables = collection.runtimeVariables || {};
 
     try {
       await ipcRenderer.invoke('renderer:sio:start-connection', {
         request: item.draft ? item.draft : item,
         collection,
-        environment: null,
-        runtimeVariables: {},
+        environment: environment || {},
+        runtimeVariables,
         settings: {},
         options: { connectOnly: true }
       });
