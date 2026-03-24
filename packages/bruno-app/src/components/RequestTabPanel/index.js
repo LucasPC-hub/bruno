@@ -30,6 +30,9 @@ import ExampleNotFound from './ExampleNotFound';
 import WsQueryUrl from 'components/RequestPane/WsQueryUrl';
 import WSRequestPane from 'components/RequestPane/WSRequestPane';
 import WSResponsePane from 'components/ResponsePane/WsResponsePane';
+import SioQueryUrl from 'components/RequestPane/SioQueryUrl';
+import SioRequestPane from 'components/RequestPane/SioRequestPane';
+import SioResponsePane from 'components/ResponsePane/SioResponsePane';
 import { useTabPaneBoundaries } from 'hooks/useTabPaneBoundaries/index';
 import ResponseExample from 'components/ResponseExample';
 import WorkspaceOverview from 'components/WorkspaceHome/WorkspaceOverview';
@@ -217,6 +220,7 @@ const RequestTabPanel = () => {
   const item = findItemInCollection(collection, activeTabUid);
   const isGrpcRequest = item?.type === 'grpc-request';
   const isWsRequest = item?.type === 'ws-request';
+  const isSioRequest = item?.type === 'socketio-request';
 
   if (focusedTab.type === 'collection-runner') {
     return <RunnerResults collection={collection} />;
@@ -285,6 +289,11 @@ const RequestTabPanel = () => {
       return;
     }
 
+    if (isSioRequest && !request.url) {
+      toast.error('Please enter a valid Socket.IO URL');
+      return;
+    }
+
     if (item.response?.stream?.running) {
       dispatch(cancelRequest(item.cancelTokenUid, item, collection)).catch((err) =>
         toast.custom((t) => <NetworkError onClose={() => toast.dismiss(t.id)} />, {
@@ -304,6 +313,9 @@ const RequestTabPanel = () => {
     }
     if (isWsRequest) {
       return <WsQueryUrl item={item} collection={collection} handleRun={handleRun} />;
+    }
+    if (isSioRequest) {
+      return <SioQueryUrl item={item} collection={collection} handleRun={handleRun} />;
     }
     return <QueryUrl item={item} collection={collection} handleRun={handleRun} />;
   };
@@ -326,6 +338,8 @@ const RequestTabPanel = () => {
         return <GrpcRequestPane item={item} collection={collection} handleRun={handleRun} />;
       case 'ws-request':
         return <WSRequestPane item={item} collection={collection} handleRun={handleRun} />;
+      case 'socketio-request':
+        return <SioRequestPane item={item} collection={collection} handleRun={handleRun} />;
       default:
         return null;
     }
@@ -337,6 +351,8 @@ const RequestTabPanel = () => {
         return <GrpcResponsePane item={item} collection={collection} response={item.response} />;
       case 'ws-request':
         return <WSResponsePane item={item} collection={collection} response={item.response} />;
+      case 'socketio-request':
+        return <SioResponsePane item={item} collection={collection} response={item.response} />;
       default:
         return <ResponsePane item={item} collection={collection} response={item.response} />;
     }

@@ -46,7 +46,7 @@ const getEffectiveAuthSource = (collection, item) => {
 const Timeline = ({ collection, item }) => {
   // Get the effective auth source if auth mode is inherit
   const authSource = getEffectiveAuthSource(collection, item);
-  const isGrpcRequest = item.type === 'grpc-request' || item.type === 'ws-request';
+  const isGrpcRequest = item.type === 'grpc-request' || item.type === 'ws-request' || item.type === 'socketio-request';
 
   // Filter timeline entries based on new rules
   const combinedTimeline = ([...(collection?.timeline || [])]).filter((obj) => {

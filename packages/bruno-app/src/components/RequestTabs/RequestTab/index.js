@@ -47,6 +47,8 @@ const RequestTab = ({ tab, collection, tabIndex, collectionRequestTabs, folderUi
         return 'gRPC';
       case 'ws-request':
         return 'WS';
+      case 'socketio-request':
+        return 'SIO';
       case 'graphql-request':
         return 'GQL';
       default:
@@ -57,6 +59,7 @@ const RequestTab = ({ tab, collection, tabIndex, collectionRequestTabs, folderUi
   const hasChanges = useMemo(() => hasRequestChanges(item), [item]);
 
   const isWS = item?.type === 'ws-request';
+  const isSIO = item?.type === 'socketio-request';
 
   useEffect(() => {
     if (!item || !tabNameRef.current || !setHasOverflow) return;
