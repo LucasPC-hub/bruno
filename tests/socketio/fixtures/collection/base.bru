@@ -1,0 +1,19 @@
+meta {
+  name: base
+  type: socketio
+  seq: 2
+}
+
+socketio {
+  url: http://localhost:8082
+  namespace: /
+  auth: inherit
+}
+
+body:socketio {
+  event: echo
+  type: json
+  content: '''
+  {}
+  '''
+}

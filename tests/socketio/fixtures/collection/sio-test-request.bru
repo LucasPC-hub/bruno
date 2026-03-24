@@ -1,0 +1,19 @@
+meta {
+  name: sio-test-request
+  type: socketio
+  seq: 1
+}
+
+socketio {
+  url: http://localhost:8081
+  namespace: /
+  auth: inherit
+}
+
+body:socketio {
+  event: echo
+  type: json
+  content: '''
+  {"message": "hello"}
+  '''
+}

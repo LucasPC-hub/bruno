@@ -188,6 +188,26 @@ export const buildWebsocketCommonLocators = (page: Page) => ({
   }
 });
 
+export const buildSocketIOCommonLocators = (page: Page) => ({
+  ...buildCommonLocators(page),
+  connectionControls: {
+    connect: () =>
+      page
+        .locator('div.connection-controls')
+        .locator('.infotip')
+        .filter({ hasText: /^Connect$/ }),
+    disconnect: () =>
+      page
+        .locator('div.connection-controls')
+        .locator('.infotip')
+        .filter({ hasText: /^Close Connection$/ })
+  },
+  messages: () => page.locator('.sio-message'),
+  toolbar: {
+    clearResponse: () => page.getByTestId('response-clear-btn')
+  }
+});
+
 export const getTableCell = (row, index) => row.locator('td').nth(index + 1);
 
 export const buildGrpcCommonLocators = (page: Page) => ({
