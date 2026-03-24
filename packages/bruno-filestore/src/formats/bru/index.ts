@@ -27,6 +27,9 @@ export const parseBruRequest = (data: string | any, parsed: boolean = false): an
       case 'ws':
         requestType = 'ws-request';
         break;
+      case 'socketio':
+        requestType = 'socketio-request';
+        break;
       default:
         requestType = 'http-request';
     }
@@ -35,6 +38,7 @@ export const parseBruRequest = (data: string | any, parsed: boolean = false): an
     const urlPath: Record<typeof requestType, string> = {
       'grpc-request': 'grpc.url',
       'ws-request': 'ws.url',
+      'socketio-request': 'socketio.url',
       'default': 'http.url'
     };
     const transformedJson = {
@@ -91,6 +95,17 @@ export const parseBruRequest = (data: string | any, parsed: boolean = false): an
           }
         ])
       });
+    } else if (requestType === 'socketio-request') {
+      transformedJson.request.auth.mode = _.get(json, 'socketio.auth', 'none');
+      transformedJson.request.body = _.get(json, 'body', {
+        mode: 'socketio',
+        socketio: _.get(json, 'body.socketio', [
+          {
+            name: 'message 1',
+            content: '{}'
+          }
+        ])
+      });
     } else {
       // For HTTP and GraphQL
       (transformedJson.request as any).params = _.get(json, 'params', []);
@@ -129,6 +144,9 @@ export const stringifyBruRequest = (json: any): string => {
         break;
       case 'ws-request':
         type = 'ws';
+        break;
+      case 'socketio-request':
+        type = 'socketio';
         break;
       default:
         type = 'http';
@@ -193,6 +211,22 @@ export const stringifyBruRequest = (json: any): string => {
       bruJson.body = _.get(json, 'request.body', {
         mode: 'ws',
         ws: _.get(json, 'request.body.ws', [
+          {
+            name: 'message 1',
+            content: '{}'
+          }
+        ])
+      });
+    } else if (type === 'socketio') {
+      bruJson.socketio = {
+        url: _.get(json, 'request.url'),
+        auth: _.get(json, 'request.auth.mode', 'none'),
+        body: _.get(json, 'request.body.mode', 'socketio')
+      };
+
+      bruJson.body = _.get(json, 'request.body', {
+        mode: 'socketio',
+        socketio: _.get(json, 'request.body.socketio', [
           {
             name: 'message 1',
             content: '{}'
@@ -362,6 +396,9 @@ export const bruExampleToJson = (data: string | any, parsed: boolean = false, pa
         break;
       case 'ws':
         transformedType = 'ws-request';
+        break;
+      case 'socketio':
+        transformedType = 'socketio-request';
         break;
       default:
         transformedType = 'http-request';

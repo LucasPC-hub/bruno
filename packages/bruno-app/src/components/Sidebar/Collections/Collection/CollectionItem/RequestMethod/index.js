@@ -5,19 +5,21 @@ import StyledWrapper from './StyledWrapper';
 const getMethodFlags = (item) => ({
   isGrpc: item.type === 'grpc-request',
   isWS: item.type === 'ws-request',
+  isSIO: item.type === 'socketio-request',
   isGraphQL: item.type === 'graphql-request'
 });
 
-const getMethodText = (item, { isGrpc, isWS, isGraphQL }) => {
+const getMethodText = (item, { isGrpc, isWS, isSIO, isGraphQL }) => {
   if (isGrpc) return 'grpc';
   if (isWS) return 'ws';
+  if (isSIO) return 'sio';
   if (isGraphQL) return 'gql';
   return item.request.method.length > 5
     ? item.request.method.substring(0, 3)
     : item.request.method;
 };
 
-const getClassname = (method = '', { isGrpc, isWS, isGraphQL }) => {
+const getClassname = (method = '', { isGrpc, isWS, isSIO, isGraphQL }) => {
   method = method.toLocaleLowerCase();
   return classnames('mr-1', {
     'method-get': method === 'get',
@@ -29,12 +31,13 @@ const getClassname = (method = '', { isGrpc, isWS, isGraphQL }) => {
     'method-options': method === 'options',
     'method-grpc': isGrpc,
     'method-ws': isWS,
+    'method-sio': isSIO,
     'method-graphql': isGraphQL
   });
 };
 
 const RequestMethod = ({ item }) => {
-  if (!['http-request', 'graphql-request', 'grpc-request', 'ws-request'].includes(item.type)) {
+  if (!['http-request', 'graphql-request', 'grpc-request', 'ws-request', 'socketio-request'].includes(item.type)) {
     return null;
   }
 

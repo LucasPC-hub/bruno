@@ -17,6 +17,7 @@ const ItemTypes = {
 const getMethodInfo = (item) => {
   const isGrpc = item.type === 'grpc-request';
   const isWS = item.type === 'ws-request';
+  const isSIO = item.type === 'socketio-request';
   const isGraphQL = item.type === 'graphql-request';
 
   let methodText;
@@ -28,6 +29,9 @@ const getMethodInfo = (item) => {
   } else if (isWS) {
     methodText = 'WS';
     methodClass = 'method-ws';
+  } else if (isSIO) {
+    methodText = 'SIO';
+    methodClass = 'method-sio';
   } else if (isGraphQL) {
     methodText = 'GQL';
     methodClass = 'method-gql';

@@ -712,14 +712,14 @@ export const transformRequestToSaveToFilesystem = (item) => {
     delete itemToSave.request.params;
   }
 
-  if (_item.type === 'ws-request') {
+  if (_item.type === 'ws-request' || _item.type === 'socketio-request') {
     delete itemToSave.request.method;
     delete itemToSave.request.methodType;
     delete itemToSave.request.params;
   }
 
   // Only process params for non-gRPC requests
-  if (!['grpc-request', 'ws-request'].includes(_item.type)) {
+  if (!['grpc-request', 'ws-request', 'socketio-request'].includes(_item.type)) {
     each(_item.request.params, (param) => {
       itemToSave.request.params.push({
         uid: param.uid,
@@ -851,7 +851,7 @@ export const deleteItemInCollectionByPathname = (pathname, collection) => {
 };
 
 export const isItemARequest = (item) => {
-  return item.hasOwnProperty('request') && ['http-request', 'graphql-request', 'grpc-request', 'ws-request'].includes(item.type) && !item.items;
+  return item.hasOwnProperty('request') && ['http-request', 'graphql-request', 'grpc-request', 'ws-request', 'socketio-request'].includes(item.type) && !item.items;
 };
 
 export const isItemAFolder = (item) => {
@@ -1098,7 +1098,7 @@ export const getDefaultRequestPaneTab = (item) => {
     return 'query';
   }
 
-  if (['ws-request', 'grpc-request'].includes(item.type)) {
+  if (['ws-request', 'grpc-request', 'socketio-request'].includes(item.type)) {
     return 'body';
   }
 };

@@ -34,6 +34,10 @@ const ShareCollection = ({ onClose, collectionUid }) => {
         types.add('WebSocket');
         return true;
       }
+      if (item.type === 'socketio-request') {
+        types.add('Socket.IO');
+        return true;
+      }
       if (item.items) {
         return item.items.some(checkItem);
       }
