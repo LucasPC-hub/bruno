@@ -112,7 +112,30 @@ const SioQueryUrl = ({ item, collection, handleRun }) => {
       toast.error('Please enter a valid Socket.IO URL');
       return;
     }
-    handleRun(e);
+
+    const { ipcRenderer } = window;
+    if (!ipcRenderer) return;
+
+    // If not connected, connect first
+    if (connectionStatus !== CONNECTION_STATUS.CONNECTED) {
+      await handleConnect();
+      return;
+    }
+
+    // Emit all events from the body
+    const body = item.draft ? get(item, 'draft.request.body') : get(item, 'request.body');
+    const events = body?.socketio || [];
+
+    for (const evt of events) {
+      const eventName = evt.eventName || evt.name || evt.event;
+      if (!eventName) continue;
+      try {
+        await ipcRenderer.invoke('renderer:sio:emit-event', item.uid, eventName, evt.content || '');
+      } catch (err) {
+        console.error('Failed to emit Socket.IO event:', err);
+        toast.error(`Failed to emit event "${eventName}"`);
+      }
+    }
   };
 
   const onSave = () => {
