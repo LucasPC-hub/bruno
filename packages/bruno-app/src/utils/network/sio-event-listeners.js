@@ -38,7 +38,9 @@ const useSioEventListeners = () => {
     });
 
     const removeConnectionsChangedListener = ipcRenderer.on('main:sio:connections-changed', (data) => {
-      dispatch(updateActiveConnectionsInStore(data));
+      if (data && data.activeConnectionIds) {
+        dispatch(updateActiveConnectionsInStore(data));
+      }
     });
 
     return () => {
