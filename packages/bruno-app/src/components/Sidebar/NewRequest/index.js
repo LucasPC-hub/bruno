@@ -409,6 +409,7 @@ const NewRequest = ({ collectionUid, item, isEphemeral, onClose }) => {
                       WebSocket
                     </label>
                   </div>
+
                   <div className="flex items-center gap-2">
                     <input
                       type="radio"
