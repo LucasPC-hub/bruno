@@ -409,21 +409,6 @@ const NewRequest = ({ collectionUid, item, isEphemeral, onClose }) => {
                       WebSocket
                     </label>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      id="socketio-request"
-                      name="requestType"
-                      value="socketio-request"
-                      checked={formik.values.requestType === 'socketio-request'}
-                      onChange={formik.handleChange}
-                      data-testid="socketio-request"
-                    />
-                    <label htmlFor="socketio-request" className="ml-1 cursor-pointer select-none">
-                      Socket.IO
-                    </label>
-                  </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
@@ -439,6 +424,20 @@ const NewRequest = ({ collectionUid, item, isEphemeral, onClose }) => {
                     />
                     <label htmlFor="from-curl" className="ml-1 cursor-pointer select-none">
                       From cURL
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      id="socketio-request"
+                      name="requestType"
+                      value="socketio-request"
+                      checked={formik.values.requestType === 'socketio-request'}
+                      onChange={formik.handleChange}
+                      data-testid="socketio-request"
+                    />
+                    <label htmlFor="socketio-request" className="ml-1 cursor-pointer select-none">
+                      Socket.IO
                     </label>
                   </div>
                 </div>
