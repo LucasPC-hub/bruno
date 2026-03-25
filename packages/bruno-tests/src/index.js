@@ -69,8 +69,16 @@ app.get('/redirect-to-ping', function (req, res) {
 
 const server = require('http').createServer(app);
 
-server.on('upgrade', wsRouter);
+// Socket.IO attaches its own upgrade handler internally for /socket.io/ paths.
+// Must be set up before the manual wsRouter so its listener fires first.
 setupSocketIO(server);
+server.on('upgrade', (req, socket, head) => {
+  // Skip /socket.io paths — already handled by Socket.IO
+  if (req.url && req.url.startsWith('/socket.io')) {
+    return;
+  }
+  wsRouter(req, socket, head);
+});
 
 setupGraphQL(app).then(() => {
   server.listen(port, function () {

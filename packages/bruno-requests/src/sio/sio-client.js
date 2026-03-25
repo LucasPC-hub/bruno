@@ -24,7 +24,7 @@ export class SioClient extends EventEmitter {
       rejectUnauthorized: sslOptions.rejectUnauthorized !== false,
       ca: sslOptions.ca || undefined,
       transports: ['websocket', 'polling'],
-      reconnection: false,
+      reconnection: false
     });
 
     this.activeConnections.set(uid, { socket, collectionUid });
@@ -39,21 +39,21 @@ export class SioClient extends EventEmitter {
       this.emit('main:sio:message', uid, collectionUid, {
         eventName,
         data: args.length === 1 ? args[0] : args,
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
     });
 
     socket.on('connect_error', (err) => {
       this.emit('main:sio:error', uid, collectionUid, {
         message: err.message,
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
     });
 
     socket.on('disconnect', (reason) => {
       this.emit('main:sio:disconnected', uid, collectionUid, {
         reason,
-        timestamp: Date.now(),
+        timestamp: Date.now()
       });
       this.activeConnections.delete(uid);
       this.eventQueues.delete(uid);
@@ -88,7 +88,7 @@ export class SioClient extends EventEmitter {
         this.emit('main:sio:ack', uid, collectionUid, {
           eventName,
           ackData,
-          timestamp: Date.now(),
+          timestamp: Date.now()
         });
       });
     } else {
@@ -162,7 +162,7 @@ export class SioClient extends EventEmitter {
 
   _emitConnectionsChanged() {
     this.emit('main:sio:connections-changed', {
-      connections: this.getActiveConnections(),
+      activeConnectionIds: this.getActiveConnections()
     });
   }
 }
