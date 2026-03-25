@@ -97,15 +97,16 @@ export const parseBruRequest = (data: string | any, parsed: boolean = false): an
       });
     } else if (requestType === 'socketio-request') {
       transformedJson.request.auth.mode = _.get(json, 'socketio.auth', 'none');
-      transformedJson.request.body = _.get(json, 'body', {
+      const parsedBody = _.get(json, 'body', {});
+      transformedJson.request.body = {
         mode: 'socketio',
-        socketio: _.get(json, 'body.socketio', [
+        socketio: parsedBody.socketio || [
           {
             name: 'message 1',
             content: '{}'
           }
-        ])
-      });
+        ]
+      };
     } else {
       // For HTTP and GraphQL
       (transformedJson.request as any).params = _.get(json, 'params', []);
