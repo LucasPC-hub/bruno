@@ -30,13 +30,14 @@ const SingleSioEvent = ({ event, item, collection, index, handleRun, isLast, isS
   const onDropdownCreate = (ref) => (dropdownTippyRef.current = ref);
 
   const body = item.draft ? get(item, 'draft.request.body') : get(item, 'request.body');
-  const { eventName, content, type = 'json' } = event;
+  const eventName = event.eventName || event.name || event.event || '';
+  const { content, type = 'json' } = event;
 
   const getEvents = () => [...(body.socketio || [])];
 
   const onUpdateEventName = (value) => {
     const events = getEvents();
-    events[index] = { ...events[index], eventName: value };
+    events[index] = { ...events[index], eventName: value, name: value };
     dispatch(updateRequestBody({ content: events, itemUid: item.uid, collectionUid: collection.uid }));
   };
 
@@ -48,7 +49,8 @@ const SingleSioEvent = ({ event, item, collection, index, handleRun, isLast, isS
 
   const onEdit = (value) => {
     const events = getEvents();
-    events[index] = { eventName: eventName || `event_${index + 1}`, type, content: value };
+    const name = eventName || `event_${index + 1}`;
+    events[index] = { eventName: name, name, type, content: value };
     dispatch(updateRequestBody({ content: events, itemUid: item.uid, collectionUid: collection.uid }));
   };
 
