@@ -129,7 +129,8 @@ const StyledWrapper = styled.div`
 
   .editor-container {
     flex: 1;
-    min-height: 0;
+    min-height: 150px;
+    overflow: auto;
   }
 `;
 
