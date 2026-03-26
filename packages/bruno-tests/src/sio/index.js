@@ -9,9 +9,24 @@ const setupSocketIO = (httpServer) => {
   io.on('connection', (socket) => {
     socket.onAny((eventName, ...args) => {
       const callback = typeof args[args.length - 1] === 'function' ? args.pop() : null;
-      socket.emit(eventName, ...args);
+
+      // Transform the data: uppercase strings, reverse string values in objects
+      const transform = (val) => {
+        if (typeof val === 'string') return val.toUpperCase();
+        if (typeof val === 'object' && val !== null) {
+          const out = Array.isArray(val) ? [] : {};
+          for (const [k, v] of Object.entries(val)) {
+            out[k] = typeof v === 'string' ? v.split('').reverse().join('').toUpperCase() : v;
+          }
+          return out;
+        }
+        return val;
+      };
+
+      const transformed = args.map(transform);
+      socket.emit(eventName, ...transformed);
       if (callback) {
-        callback({ status: 'ok', eventName, data: args });
+        callback({ status: 'ok', eventName, data: transformed });
       }
     });
 
