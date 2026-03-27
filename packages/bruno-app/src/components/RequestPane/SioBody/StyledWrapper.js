@@ -48,19 +48,21 @@ const StyledWrapper = styled.div`
   .event-container {
     display: flex;
     flex-direction: column;
-    min-height: 240px;
-    margin-bottom: 8px;
-
-    &.last {
-      margin-bottom: 0;
-    }
 
     &.single {
       height: 100%;
-      min-height: unset;
 
       .editor-container {
-        height: calc(100% - 64px);
+        height: calc(100% - 32px);
+      }
+    }
+
+    &:not(.single) {
+      min-height: 240px;
+      margin-bottom: 8px;
+
+      &.last {
+        margin-bottom: 0;
       }
     }
   }
@@ -71,33 +73,46 @@ const StyledWrapper = styled.div`
     justify-content: flex-end;
     gap: 4px;
     padding: 4px 0px;
+    padding-top: 0px;
     height: 32px;
     flex-shrink: 0;
 
-    .event-name-input {
+    .event-name {
+      display: flex;
+      align-items: center;
+      margin-right: auto;
+      gap: 0;
+      min-width: 0;
       flex: 1;
+      max-width: 280px;
+    }
+
+    .event-name-input {
       background: transparent;
-      border: 1px solid ${(props) => props.theme.input.border};
-      border-radius: 3px;
-      padding: 2px 6px;
+      border: none;
+      border-bottom: 1px solid transparent;
+      padding: 2px 4px;
       font-size: ${(props) => props.theme.font.size.sm};
-      color: ${(props) => props.theme.text};
+      color: ${(props) => props.theme.colors.text.subtext1};
       outline: none;
+      min-width: 80px;
+      max-width: 220px;
+      width: auto;
+      transition: border-color 0.15s ease;
 
       &::placeholder {
         color: ${(props) => props.theme.colors.text.muted};
+        font-style: italic;
+      }
+
+      &:hover {
+        border-bottom-color: ${(props) => props.theme.input.border};
       }
 
       &:focus {
-        border-color: ${(props) => props.theme.input.focusBorder};
+        border-bottom-color: ${(props) => props.theme.input.focusBorder};
+        color: ${(props) => props.theme.text};
       }
-    }
-
-    .event-label {
-      font-size: ${(props) => props.theme.font.size.sm};
-      color: ${(props) => props.theme.colors.text.subtext1};
-      margin-right: 4px;
-      white-space: nowrap;
     }
 
     .toolbar-actions {
@@ -129,8 +144,7 @@ const StyledWrapper = styled.div`
 
   .editor-container {
     flex: 1;
-    min-height: 150px;
-    overflow: auto;
+    min-height: 0;
   }
 `;
 

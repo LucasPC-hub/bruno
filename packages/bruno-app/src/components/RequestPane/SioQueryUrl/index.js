@@ -1,7 +1,7 @@
 import { IconArrowRight, IconDeviceFloppy, IconPlugConnected, IconPlugConnectedX } from '@tabler/icons';
 import classnames from 'classnames';
 import SingleLineEditor from 'components/SingleLineEditor/index';
-import { requestUrlChanged, socketioNamespaceChanged } from 'providers/ReduxStore/slices/collections';
+import { requestUrlChanged, socketioNamespaceChanged, sioResponseReceived } from 'providers/ReduxStore/slices/collections';
 import { saveRequest } from 'providers/ReduxStore/slices/collections/actions';
 import { useTheme } from 'providers/Theme';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
@@ -131,6 +131,16 @@ const SioQueryUrl = ({ item, collection, handleRun }) => {
       if (!eventName) continue;
       try {
         await ipcRenderer.invoke('renderer:sio:emit-event', item.uid, eventName, evt.content || '');
+        dispatch(sioResponseReceived({
+          itemUid: item.uid,
+          collectionUid: collection.uid,
+          eventType: 'outgoing',
+          eventData: {
+            eventName,
+            data: evt.content || '',
+            timestamp: Date.now()
+          }
+        }));
       } catch (err) {
         console.error('Failed to emit Socket.IO event:', err);
         toast.error(`Failed to emit event "${eventName}"`);

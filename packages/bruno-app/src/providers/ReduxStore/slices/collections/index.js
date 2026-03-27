@@ -3503,20 +3503,62 @@ export const collectionsSlice = createSlice({
       if (!item) return;
 
       if (!item.sioResponse) {
-        item.sioResponse = { messages: [], connectionStatus: 'disconnected' };
+        item.sioResponse = {
+          messages: [],
+          connectionStatus: 'disconnected',
+          statusCode: null,
+          statusText: null,
+          statusDescription: null,
+          duration: 0
+        };
       }
 
       switch (eventType) {
         case 'connecting':
           item.sioResponse.connectionStatus = 'connecting';
+          item.sioResponse.statusText = 'CONNECTING';
+          item.sioResponse.statusCode = null;
+          item.sioResponse.connectTimestamp = Date.now();
+          item.sioResponse.messages.push({
+            type: 'info',
+            eventName: 'connecting',
+            data: 'Connecting...',
+            timestamp: Date.now()
+          });
           break;
         case 'connected':
           item.sioResponse.connectionStatus = 'connected';
+          item.sioResponse.statusText = 'CONNECTED';
+          item.sioResponse.statusCode = 0;
+          item.sioResponse.duration = item.sioResponse.connectTimestamp
+            ? Date.now() - item.sioResponse.connectTimestamp
+            : 0;
+          item.sioResponse.messages.push({
+            type: 'info',
+            eventName: 'connected',
+            data: 'Connection established',
+            timestamp: Date.now()
+          });
           break;
-        case 'disconnected':
+        case 'disconnected': {
           item.sioResponse.connectionStatus = 'disconnected';
+          const reason = eventData?.reason || 'client disconnect';
+          item.sioResponse.statusText = reason.toUpperCase().replace(/\s+/g, '_');
+          item.sioResponse.statusDescription = reason;
+          item.sioResponse.duration = item.sioResponse.connectTimestamp
+            ? Date.now() - item.sioResponse.connectTimestamp
+            : item.sioResponse.duration;
+          item.sioResponse.messages.push({
+            type: 'info',
+            eventName: 'disconnected',
+            data: `Disconnected: ${reason}`,
+            timestamp: Date.now()
+          });
           break;
+        }
         case 'error':
+          item.sioResponse.statusText = 'ERROR';
+          item.sioResponse.isError = true;
           item.sioResponse.messages.push({
             type: 'error',
             eventName: 'error',

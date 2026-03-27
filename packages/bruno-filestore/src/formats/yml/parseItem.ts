@@ -9,6 +9,7 @@ import parseHttpRequest from './items/parseHttpRequest';
 import parseGraphQLRequest from './items/parseGraphQLRequest';
 import parseGrpcRequest from './items/parseGrpcRequest';
 import parseWebsocketRequest from './items/parseWebsocketRequest';
+import parseSocketioRequest from './items/parseSocketioRequest';
 import parseScript from './items/parseScript';
 
 // Helper to get the type from an item (now in info block)
@@ -53,6 +54,12 @@ const ensureAuthV3Rc1BackwardsCompatibility = (parsedItemYml: any): any => {
         parsedItemYml.websocket.auth = parsedItemYml.runtime.auth;
       }
       break;
+    case 'socketio':
+      if (parsedItemYml.runtime?.auth && !parsedItemYml.socketio?.auth) {
+        parsedItemYml.socketio = parsedItemYml.socketio || {};
+        parsedItemYml.socketio.auth = parsedItemYml.runtime.auth;
+      }
+      break;
     default:
       break;
   }
@@ -85,7 +92,7 @@ const parseItem = (ymlString: string): BrunoItem => {
         return parseWebsocketRequest(ocItem as WebSocketRequest);
 
       case 'socketio':
-        return parseWebsocketRequest(ocItem as WebSocketRequest);
+        return parseSocketioRequest(ocItem);
 
       case 'script':
         return parseScript(ocItem as ScriptFile);

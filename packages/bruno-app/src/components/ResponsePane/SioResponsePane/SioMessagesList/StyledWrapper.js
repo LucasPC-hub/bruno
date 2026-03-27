@@ -12,9 +12,10 @@ const StyledWrapper = styled.div`
 
   .sio-message {
     background: ${(props) => props.theme.bg};
+    transition: background-color 0.3s ease;
 
     &.new {
-      background-color: ${({ theme }) => theme.table.striped};
+      animation: flash-new 0.6s ease-out;
     }
 
     &:not(:last-child) {
@@ -27,11 +28,13 @@ const StyledWrapper = styled.div`
 
     .message-content {
       color: ${(props) => props.theme.text};
+      font-size: ${(props) => props.theme.font.size.sm};
     }
 
     .message-timestamp {
       font-size: ${(props) => props.theme.font.size.xs};
       color: ${(props) => props.theme.colors.text.muted};
+      font-variant-numeric: tabular-nums;
     }
 
     .chevron-icon {
@@ -45,6 +48,23 @@ const StyledWrapper = styled.div`
       font-weight: 600;
       white-space: nowrap;
       flex-shrink: 0;
+    }
+
+    .direction-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes flash-new {
+    0% {
+      background-color: ${({ theme }) => theme.table.striped};
+    }
+    100% {
+      background-color: transparent;
     }
   }
 

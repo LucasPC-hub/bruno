@@ -3,7 +3,7 @@ import { fromOpenCollectionHttpItem, toOpenCollectionHttpItem } from './http';
 import { fromOpenCollectionGraphqlItem, toOpenCollectionGraphqlItem } from './graphql';
 import { fromOpenCollectionGrpcItem, toOpenCollectionGrpcItem } from './grpc';
 import { fromOpenCollectionWebsocketItem, toOpenCollectionWebsocketItem } from './websocket';
-import { fromOpenCollectionSocketioItem } from './socketio';
+import { fromOpenCollectionSocketioItem, toOpenCollectionSocketioItem } from './socketio';
 import type {
   BrunoItem
 } from '../types';
@@ -100,6 +100,8 @@ export const toOpenCollectionItem = (item: BrunoItem, stringifyFolder: (folder: 
       return toOpenCollectionGrpcItem(item);
     case 'ws-request':
       return toOpenCollectionWebsocketItem(item);
+    case 'socketio-request':
+      return toOpenCollectionSocketioItem(item);
     case 'folder':
       return stringifyFolder(item);
     case 'js':
@@ -131,4 +133,4 @@ export { fromOpenCollectionHttpItem, toOpenCollectionHttpItem } from './http';
 export { fromOpenCollectionGraphqlItem, toOpenCollectionGraphqlItem } from './graphql';
 export { fromOpenCollectionGrpcItem, toOpenCollectionGrpcItem } from './grpc';
 export { fromOpenCollectionWebsocketItem, toOpenCollectionWebsocketItem } from './websocket';
-export { fromOpenCollectionSocketioItem } from './socketio';
+export { fromOpenCollectionSocketioItem, toOpenCollectionSocketioItem } from './socketio';

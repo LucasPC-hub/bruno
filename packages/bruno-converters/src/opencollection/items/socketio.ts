@@ -1,10 +1,15 @@
 import { uuid } from '../../common/index.js';
 import {
   fromOpenCollectionHeaders,
+  toOpenCollectionHeaders,
   fromOpenCollectionAuth,
+  toOpenCollectionAuth,
   fromOpenCollectionScripts,
+  toOpenCollectionScripts,
   fromOpenCollectionVariables,
-  fromOpenCollectionActions
+  toOpenCollectionVariables,
+  fromOpenCollectionActions,
+  toOpenCollectionActions
 } from '../common';
 import type {
   Auth,
@@ -124,4 +129,89 @@ export const fromOpenCollectionSocketioItem = (item: SocketIOOCRequest): BrunoIt
   }
 
   return brunoItem;
+};
+
+export const toOpenCollectionSocketioItem = (item: BrunoItem): SocketIOOCRequest => {
+  const request = (item.request || {}) as Record<string, unknown>;
+
+  const info: SocketIORequestInfo = {
+    name: item.name || 'Untitled Request',
+    type: 'socketio'
+  };
+
+  if (item.seq) {
+    info.seq = item.seq;
+  }
+
+  if (item.tags?.length) {
+    info.tags = item.tags;
+  }
+
+  const socketio: SocketIORequestDetails = {
+    url: request.url as string || ''
+  };
+
+  const headers = toOpenCollectionHeaders(request.headers as BrunoKeyValue[]);
+  if (headers) {
+    socketio.headers = headers;
+  }
+
+  const body = request.body as { socketio?: BrunoSocketIOEvent[] } | undefined;
+  if (body?.socketio?.length) {
+    const events = body.socketio;
+    if (events.length === 1) {
+      socketio.events = {
+        type: events[0].type || 'json',
+        data: events[0].content || ''
+      };
+    } else {
+      socketio.events = events.map((evt): SocketIOEventVariant => ({
+        title: evt.name || 'Untitled',
+        event: {
+          type: evt.type || 'json',
+          data: evt.content || ''
+        }
+      }));
+    }
+  }
+
+  const auth = toOpenCollectionAuth(request.auth as Parameters<typeof toOpenCollectionAuth>[0]);
+  if (auth) {
+    socketio.auth = auth;
+  }
+
+  const ocRequest: SocketIOOCRequest = {
+    info,
+    socketio
+  };
+
+  const scripts = toOpenCollectionScripts(request as Parameters<typeof toOpenCollectionScripts>[0]);
+  const variables = toOpenCollectionVariables(request.vars as Parameters<typeof toOpenCollectionVariables>[0]);
+
+  const vars = request.vars as { req?: unknown[]; res?: unknown[] } | undefined;
+  const actions = toOpenCollectionActions(vars?.res as Parameters<typeof toOpenCollectionActions>[0]);
+
+  if (scripts || variables || actions) {
+    const runtime: SocketIORequestRuntime = {};
+
+    if (scripts) {
+      runtime.scripts = scripts;
+    }
+
+    if (variables) {
+      runtime.variables = variables;
+    }
+
+    if (actions) {
+      (runtime as { actions?: typeof actions }).actions = actions;
+    }
+
+    ocRequest.runtime = runtime;
+  }
+
+  if (request.docs) {
+    ocRequest.docs = request.docs as string;
+  }
+
+  return ocRequest;
 };

@@ -132,16 +132,18 @@ export class SioClient extends EventEmitter {
   }
 
   disconnectAll() {
-    for (const [uid] of this.activeConnections) {
+    const uids = Array.from(this.activeConnections.keys());
+    for (const uid of uids) {
       this.disconnect(uid);
     }
   }
 
   closeForCollection(collectionUid) {
-    for (const [uid, entry] of this.activeConnections) {
-      if (entry.collectionUid === collectionUid) {
-        this.disconnect(uid);
-      }
+    const uids = Array.from(this.activeConnections.entries())
+      .filter(([, entry]) => entry.collectionUid === collectionUid)
+      .map(([uid]) => uid);
+    for (const uid of uids) {
+      this.disconnect(uid);
     }
   }
 

@@ -66,7 +66,7 @@ const SioMessageItem = memo(({ message, isOpen, onToggle }) => {
   const [isNew, setIsNew] = useState(false);
   const notified = useRef(false);
 
-  const isIncoming = message.type === 'incoming';
+  const isIncoming = message.type === 'incoming' || message.type === 'message';
   const isInfo = message.type === 'info';
   const isError = message.type === 'error';
   const isOutgoing = message.type === 'outgoing';
@@ -76,6 +76,12 @@ const SioMessageItem = memo(({ message, isOpen, onToggle }) => {
   const payload = message.data !== undefined ? message.data : (message.payload !== undefined ? message.payload : message.message);
   let parsedContent = parseContent(payload);
   const dataType = getDataTypeText(parsedContent.type);
+
+  const formatTime = (ts) => {
+    if (!ts) return '';
+    const d = new Date(ts);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3 });
+  };
 
   useEffect(() => {
     if (notified.current === true) return;
@@ -100,7 +106,7 @@ const SioMessageItem = memo(({ message, isOpen, onToggle }) => {
   return (
     <div
       className={classnames('sio-message flex flex-col p-2', {
-        'sio-incoming': isIncoming,
+        'sio-incoming': isIncoming && !isOutgoing,
         'sio-outgoing': isOutgoing,
         'sio-info': isInfo,
         'sio-error': isError,
@@ -117,7 +123,7 @@ const SioMessageItem = memo(({ message, isOpen, onToggle }) => {
       >
         <div className="flex min-w-0 shrink items-center gap-2">
           <span className="message-type-icon flex-shrink-0">
-            <TypeIcon type={message.type} />
+            <TypeIcon type={isIncoming ? 'incoming' : message.type} />
           </span>
           {eventName && (
             <span className="event-badge">
@@ -130,7 +136,7 @@ const SioMessageItem = memo(({ message, isOpen, onToggle }) => {
         </div>
         <div className="flex shrink-0 gap-2 items-center">
           {message.timestamp && (
-            <span className="message-timestamp">{new Date(message.timestamp).toISOString()}</span>
+            <span className="message-timestamp">{formatTime(message.timestamp)}</span>
           )}
           {canOpenMessage
             ? (

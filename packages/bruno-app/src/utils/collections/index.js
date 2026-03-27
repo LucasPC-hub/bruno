@@ -770,6 +770,17 @@ export const transformRequestToSaveToFilesystem = (item) => {
     };
   }
 
+  if (itemToSave.request.body.mode === 'socketio') {
+    itemToSave.request.body = {
+      ...itemToSave.request.body,
+      socketio: (itemToSave.request.body.socketio || []).map(({ name, content, type }, index) => ({
+        name: name ? name : `event ${index + 1}`,
+        type,
+        content: replaceTabsWithSpaces(content)
+      }))
+    };
+  }
+
   return itemToSave;
 };
 

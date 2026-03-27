@@ -10,6 +10,7 @@ import React, { forwardRef, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toastError } from 'utils/common/error';
 import { prettifyJsonString } from 'utils/common/index';
+import Button from 'ui/Button';
 import StyledWrapper from './StyledWrapper';
 
 const TYPE_MODES = [
@@ -85,14 +86,16 @@ const SingleSioEvent = ({ event, item, collection, index, handleRun, isLast, isS
   return (
     <div className={`event-container ${isSingle ? 'single' : ''} ${isLast ? 'last' : ''}`}>
       <div className="event-toolbar">
-        <span className="event-label">Event</span>
-        <input
-          type="text"
-          className="event-name-input"
-          placeholder="event name (required)"
-          value={eventName || ''}
-          onChange={(e) => onUpdateEventName(e.target.value)}
-        />
+        <div className="event-name">
+          <input
+            type="text"
+            className="event-name-input"
+            placeholder="event name"
+            value={eventName || ''}
+            onChange={(e) => onUpdateEventName(e.target.value)}
+            size={Math.max(10, (eventName || '').length + 2)}
+          />
+        </div>
         <div className="toolbar-actions">
           <Dropdown onCreate={onDropdownCreate} icon={<TypeIcon />} placement="bottom-end">
             {TYPE_MODES.map((m) => (
@@ -115,11 +118,13 @@ const SingleSioEvent = ({ event, item, collection, index, handleRun, isLast, isS
             </button>
           </ToolHint>
 
-          <ToolHint text="Delete event" toolhintId={`sio-delete-${index}`}>
-            <button onClick={onDeleteEvent} className="toolbar-btn delete">
-              <IconTrash size={16} strokeWidth={1.5} />
-            </button>
-          </ToolHint>
+          {index > 0 && (
+            <ToolHint text="Delete event" toolhintId={`sio-delete-${index}`}>
+              <button onClick={onDeleteEvent} className="toolbar-btn delete">
+                <IconTrash size={16} strokeWidth={1.5} />
+              </button>
+            </ToolHint>
+          )}
         </div>
       </div>
       <div className="editor-container">
@@ -143,6 +148,7 @@ const SingleSioEvent = ({ event, item, collection, index, handleRun, isLast, isS
 const SioBody = ({ item, collection, handleRun }) => {
   const dispatch = useDispatch();
   const body = item.draft ? get(item, 'draft.request.body') : get(item, 'request.body');
+  const canClientSendMultipleMessages = false;
 
   const addNewEvent = () => {
     const currentEvents = Array.isArray(body?.socketio) ? [...body.socketio] : [];
@@ -158,31 +164,31 @@ const SioBody = ({ item, collection, handleRun }) => {
     }));
   };
 
-  if (!body?.socketio || !Array.isArray(body.socketio) || body.socketio.length === 0) {
+  if (!body?.socketio || !Array.isArray(body.socketio)) {
     return (
       <StyledWrapper>
         <div className="empty-state">
           <p>No Socket.IO events configured</p>
-          <button
+          <Button
             onClick={addNewEvent}
-            className="flex items-center gap-1 px-3 py-1 text-sm rounded"
-            style={{ border: '1px solid currentColor', cursor: 'pointer' }}
+            variant="filled"
+            color="secondary"
+            size="sm"
+            icon={<IconPlus size={14} strokeWidth={1.5} />}
           >
-            <IconPlus size={14} strokeWidth={1.5} />
             Add Event
-          </button>
+          </Button>
         </div>
       </StyledWrapper>
     );
   }
 
-  const events = body.socketio;
-  const isSingle = events.length === 1;
+  const eventsToShow = body.socketio.filter((_, index) => canClientSendMultipleMessages || index === 0);
 
   return (
     <StyledWrapper>
-      <div className={`events-container ${isSingle ? 'single' : 'multi'}`}>
-        {events.map((event, index) => (
+      <div className={`events-container ${canClientSendMultipleMessages && eventsToShow.length > 1 ? 'multi' : 'single'}`}>
+        {eventsToShow.map((event, index) => (
           <SingleSioEvent
             key={index}
             event={event}
@@ -190,22 +196,26 @@ const SioBody = ({ item, collection, handleRun }) => {
             collection={collection}
             index={index}
             handleRun={handleRun}
-            isSingle={isSingle}
-            isLast={index === events.length - 1}
+            isSingle={!canClientSendMultipleMessages || eventsToShow.length === 1}
+            isLast={index === eventsToShow.length - 1}
           />
         ))}
       </div>
 
-      <div className="add-event-footer">
-        <button
-          onClick={addNewEvent}
-          className="flex items-center justify-center gap-1 w-full px-3 py-1 text-sm rounded"
-          style={{ border: '1px solid currentColor', cursor: 'pointer' }}
-        >
-          <IconPlus size={14} strokeWidth={1.5} />
-          Add Event
-        </button>
-      </div>
+      {canClientSendMultipleMessages && (
+        <div className="add-event-footer">
+          <Button
+            onClick={addNewEvent}
+            variant="filled"
+            color="secondary"
+            size="sm"
+            fullWidth
+            icon={<IconPlus size={14} strokeWidth={1.5} />}
+          >
+            Add Event
+          </Button>
+        </div>
+      )}
     </StyledWrapper>
   );
 };

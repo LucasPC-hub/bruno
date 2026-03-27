@@ -284,7 +284,7 @@ const registerSioEventHandlers = (window) => {
     }
   };
 
-  sioClient = new SioClient(sendEvent);
+  sioClient = new SioClient();
 
   // Forward all sio events from sioClient to the renderer
   const sioEvents = [
@@ -346,17 +346,7 @@ const registerSioEventHandlers = (window) => {
         const sioBody = preparedRequest.body?.socketio ?? [];
         const namespace = preparedRequest.body?.namespace || '/';
 
-        // Queue pre-connect emits before starting the connection
-        if (!connectOnly) {
-          const hasEvents = sioBody.some((evt) => evt.content && evt.content.length);
-          if (hasEvents) {
-            sioBody.forEach((evt) => {
-              sioClient.emitEvent(preparedRequest.uid, evt.eventName || evt.name, evt.content);
-            });
-          }
-        }
-
-        // Start Socket.IO connection
+        // Start Socket.IO connection (must happen before emitEvent so the entry exists)
         await sioClient.startConnection(preparedRequest.uid, collection.uid, {
           url: preparedRequest.url,
           namespace,
@@ -364,6 +354,15 @@ const registerSioEventHandlers = (window) => {
           headers: preparedRequest.headers,
           sslOptions
         });
+
+        // Queue pre-connect emits (connection entry now exists, so they'll be queued)
+        if (!connectOnly) {
+          sioBody.forEach((evt) => {
+            if (evt.content && evt.content.length) {
+              sioClient.emitEvent(preparedRequest.uid, evt.eventName || evt.name, evt.content);
+            }
+          });
+        }
 
         sendEvent('main:sio:request', preparedRequest.uid, collection.uid, requestSent);
 
